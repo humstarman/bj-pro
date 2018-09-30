@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: default
+  labels:
+    component: bj-pro 
+  name: bj-pro
+spec:
+  type: ClusterIP 
+  selector:
+    component: bj-pro
+  ports:
+    - port: 8080
+      targetPort: 8080 
+      name: http 

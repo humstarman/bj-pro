@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: bj-pro 
+  namespace: default 
+spec:
+  rules:
+  - host: gmt.pro.me 
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: bj-pro 
+          servicePort: 8080 

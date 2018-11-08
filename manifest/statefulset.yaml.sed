@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: {{.name}}
-          image: {{.images}} 
+          image: {{.image}} 
           imagePullPolicy: {{.image.pull.policy}} 
           env:
             - name: POD_IP
@@ -32,13 +32,13 @@ spec:
             - name: host-time
               mountPath: /etc/localtime
               readOnly: true
-            - name: {{.name}}-claim
+            - name: pics 
               mountPath: {{.mount.path}} 
       volumes:
         - name: host-time
           hostPath:
             path: /etc/localtime
-        - name: {{.name}}-claim
+        - name: pics 
           persistentVolumeClaim:
-            claimName: {{.name}}-claim 
+            claimName: {{.pvc.name}} 
 

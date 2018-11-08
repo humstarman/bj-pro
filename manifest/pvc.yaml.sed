@@ -1,7 +1,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{.name}}-pvc 
+  name: {{.pvc.name}} 
   annotations:
     volume.beta.kubernetes.io/storage-class: "managed-nfs-storage"
 spec:

@@ -7,8 +7,11 @@ IMAGE_PULL_POLICY=Always
 MANIFEST=./manifest
 SCRIPT=./scripts
 MOUNT_PATH=/home/pics
+PVC_NAME=${NAME}-claim
+FROM=/tmp/pics
+TO=/home/pics
 
-all: build push deploy
+all: build push deploy mv
 
 build:
 	@docker build -t ${IMAGE} .
@@ -26,28 +29,31 @@ sed:
 	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.url}}"?"${URL}"?g
 	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.image.pull.policy}}"?"${IMAGE_PULL_POLICY}"?g
 	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.mount.path}}"?"${MOUNT_PATH}"?g
+	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.pvc.name}}"?"${PVC_NAME}"?g
 
 deploy: export OP=create
 deploy: cp sed
 	@kubectl ${OP} -f ${MANIFEST}/pvc.yaml
-	@kubectl ${OP} -f ${MANIFEST}/staefulset.yaml
+	@kubectl ${OP} -f ${MANIFEST}/statefulset.yaml
 	@kubectl ${OP} -f ${MANIFEST}/service.yaml
 	@kubectl ${OP} -f ${MANIFEST}/ingress.yaml
 
 clean: export OP=delete
 clean:
+	-@kubectl ${OP} -f ${MANIFEST}/statefulset.yaml
 	-@kubectl ${OP} -f ${MANIFEST}/pvc.yaml
-	-@kubectl ${OP} -f ${MANIFEST}/staefulset.yaml
 	-@kubectl ${OP} -f ${MANIFEST}/service.yaml
 	-@kubectl ${OP} -f ${MANIFEST}/ingress.yaml
 	-@rm -f ${MANIFEST}/service.yaml
 	-@rm -f ${MANIFEST}/ingress.yaml
-	-@rm -f ${MANIFEST}/configmap.yaml
-	-@rm -f ${MANIFEST}/controller.yaml
+	-@rm -f ${MANIFEST}/statefulset.yaml
+	-@rm -f ${MANIFEST}/pvc.yaml
 
-refresh:
-	@kubectl ${OP} -f ${MANIFEST}/configmap.yaml
-	@kubectl ${OP} -f ${MANIFEST}/configmap.yaml
+mv:
+	@${SCRIPT}/mv-file.sh -p ${NAME}-0 -s ${NAMESPACE} -f ${FROM} -t ${TO} -c
 
-passwd:
-	@${SCRIPT}/get-passwd.sh -n ${NAME} -s ${NAMESPACE}
+test:
+	@kubectl -n ${NAMESPACE} exec -it ${NAME}-0 -- ls ${TO}
+
+check:
+	@kubectl -n ${NAMESPACE} exec -it ${NAME}-0 -- ls ${FROM}

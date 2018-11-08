@@ -1,15 +1,18 @@
-kind: Deployment 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta1
+kind: StatefulSet
 metadata:
   namespace: default 
   name: bj-pro 
 spec:
+  serviceName: "bj-pro"
+  podManagementPolicy: Parallel
   replicas: 1
   template:
     metadata:
       labels:
         component: bj-pro
     spec:
+      terminationGracePeriodSeconds: 10
       containers:
         - name: bj-pro
           image: 10.254.0.50:5000/tomcat-tmp:7.0.77-jre8
@@ -29,7 +32,13 @@ spec:
             - name: host-time
               mountPath: /etc/localtime
               readOnly: true
+            - name: pics-claim
+              mountPath: /home/pics
       volumes:
         - name: host-time
           hostPath:
             path: /etc/localtime
+        - name: pics-claim
+          persistentVolumeClaim:
+            claimName: pics-claim 
+

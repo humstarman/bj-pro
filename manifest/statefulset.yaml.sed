@@ -1,22 +1,22 @@
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  namespace: default 
-  name: bj-pro 
+  namespace: {{.namespace}} 
+  name: {{.name}} 
 spec:
-  serviceName: "bj-pro"
+  serviceName: "{{.name}}"
   podManagementPolicy: Parallel
   replicas: 1
   template:
     metadata:
       labels:
-        component: bj-pro
+        component: {{.name}}
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-        - name: bj-pro
-          image: 10.254.0.50:5000/tomcat-tmp:7.0.77-jre8
-          imagePullPolicy: Always
+        - name: {{.name}}
+          image: {{.images}} 
+          imagePullPolicy: {{.image.pull.policy}} 
           env:
             - name: POD_IP
               valueFrom:
@@ -32,13 +32,13 @@ spec:
             - name: host-time
               mountPath: /etc/localtime
               readOnly: true
-            - name: pics-claim
-              mountPath: /home/pics
+            - name: {{.name}}-claim
+              mountPath: {{.mount.path}} 
       volumes:
         - name: host-time
           hostPath:
             path: /etc/localtime
-        - name: pics-claim
+        - name: {{.name}}-claim
           persistentVolumeClaim:
-            claimName: pics-claim 
+            claimName: {{.name}}-claim 
 

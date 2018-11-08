@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: default
+  namespace: {{.namespace}}
   labels:
-    component: bj-pro 
-  name: bj-pro
+    component: {{.name}} 
+  name: {{.name}}
 spec:
   type: ClusterIP 
   selector:
-    component: bj-pro
+    component: {{.name}}
   ports:
     - port: 8080
       targetPort: 8080 
